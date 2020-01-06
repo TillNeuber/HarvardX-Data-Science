@@ -7,8 +7,8 @@ if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.
 if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.r-project.org")
 if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 
-# Set path to the directory that contains the dataset
-path <- "."
+# Set path to the directory that contains the dataset, default: working directory.
+path <- getwd()
 filename <- "Video_Games_Sales_as_at_22_Dec_2016.csv"
 fullpath <- file.path(path, filename)
 

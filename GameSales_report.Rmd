@@ -24,7 +24,7 @@ sales <- read.csv(fullpath)
 
 ## Overview 
 
-The goal of this project is to build a prediction system for video game sales based on sales data from VGChartz and ratings form Metacritic. The dataset has been created by Rush Kirubi (see https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings).
+The goal of this project is to build a prediction system for video game sales based on sales data from VGChartz and ratings form Metacritic. The dataset has been created by Rush Kirubi (see https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings). The project and dataset can also be found at: https://github.com/TillNeuber/HarvardX-Data-Science.
 
 The raw dataset consists of 16,719 video games. Besides some general descriptive information (platform, genre, developer, publisher, age rating) the dataset contains sales information for each title. Additionally, aggregated rating information (user & critic score) and the number of users and critics who assessed the game are provided. Unfortunately, the rating information is relatively sparse, after cleaning the dataset (described in more detail in the following section) 7,017 games with sufficient information for the subsequent analysis remain. After that, the dataset is prepared in a way that is suitable for fitting a regression model. The data preparation is outlined in the following section.
 
