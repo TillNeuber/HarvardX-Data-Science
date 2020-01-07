@@ -28,7 +28,7 @@ The goal of this project is to build a prediction system for video game sales ba
 
 The raw dataset consists of 16,719 video games. Besides some general descriptive information (platform, genre, developer, publisher, age rating) the dataset contains sales information for each title. Additionally, aggregated rating information (user & critic score) and the number of users and critics who assessed the game are provided. Unfortunately, the rating information is relatively sparse, after cleaning the dataset (described in more detail in the following section) 7,017 games with sufficient information for the subsequent analysis remain. After that, the dataset is prepared in a way that is suitable for fitting a regression model. The data preparation is outlined in the following section.
 
-Initially, several univariate regressions were performed to identify potentially relevant explanatory variables. I find that particularly the aggregated critics' score, the number of critics who assessed teh game, the publisher and the platform have high predictive power. Combining these variables in a multivariate regression further improves the quality of the forecast. 
+Initially, several univariate regressions were performed to identify potentially relevant explanatory variables. I find that particularly the aggregated critics' score, the number of critics who assessed the game, the publisher and the platform have high predictive power. Combining these variables in a multivariate regression further improves the quality of the forecast. 
 
 Overall, I was able to improve the RMSE from around 1.20 (naive forecast using the mean sales number) to 1.11 - 1.19 (univariate regressions) and finally to 1.03 (multivariate regression).
 
@@ -45,7 +45,7 @@ Following the import of the dataset, it needs to be cleaned and prepared for the
 sales <- sales[complete.cases(sales), ]
 ```
 
-2. The user scores have been encoded as factor, presumambly becores some scores have been reported as "tbd". However, step 1 also removed all games with "tbd" user scores and I can transform the data to numerical values in order to be able to later perform a regression.
+2. The user scores have been encoded as factor, presumambly because some scores have been reported as "tbd". However, step 1 also removed all games with "tbd" user scores and I can transform the data to numerical values in order to be able to later perform a regression.
 
 ```{r data_preparation_2}
 sales$User_Score <- as.numeric(as.character(sales$User_Score))
@@ -65,13 +65,13 @@ sales$Developer[sales$n_developed <= 5] = "Other"
 sales <- ungroup(sales)
 ```
 
-4. To make the dataset easier to handle I drop all the columns I will not use in the subsequent analysis. In particular these are the regional sales columns. 
+4. To make the dataset easier to handle I drop all the columns I will not use in the subsequent analysis. In particular, these are the regional sales columns. 
 
 ```{r data_preparation_4}
 sales <- subset(sales, select = -c(NA_Sales, EU_Sales, JP_Sales, Other_Sales, n_published, n_developed))
 ```
 
-After the data has been prepared, I split the set up in a training and a validation subset.
+After the data has been prepared, I split the set in a training and a validation subset.
 
 ```{r data_partitioning}
 #set.seed(1, sample.kind="Rounding")
@@ -83,9 +83,9 @@ train_set <- sales[-test_index,]
 test_set <- sales[test_index,]
 ```
 
-To be able to assess the model performance subsequently, I establish a benchmark by making a naive forecast (i.e. use the mean sales as prediction) and calculate the RMSE. Later, I will compare the RMSE of the regression models with this value.
-
 ### Naive Prediction
+
+To be able to assess the model performance subsequently, I establish a benchmark by making a naive forecast (i.e. use the mean sales as prediction) and calculate the RMSE. Later, I will compare the RMSE of the regression models with this value.
 
 ```{r benchmark_rmse}
 # Calculate the mean sales per video game, i.e. a naive prediction 
@@ -115,7 +115,8 @@ fit_critic_score <- lm(Global_Sales ~ Critic_Score, data = train_set)
 y_hat_critic_score <- predict(fit_critic_score, test_set)
 rmse_critic_score <- RMSE(test_set$Global_Sales, y_hat_critic_score)
 
-# Fit a exponential model using the critic scores only (i.e. transform Global_Sales and perform the regression)
+# Fit a exponential model using the critic scores only 
+# (i.e. transform Global_Sales and perform the regression)
 fit_critic_score_exp <- lm(log(Global_Sales) ~ Critic_Score, data = train_set)
 y_hat_critic_score_exp <- predict(fit_critic_score_exp, test_set)
 rmse_critic_score_exp <- RMSE(test_set$Global_Sales, y_hat_critic_score_exp)
@@ -128,9 +129,9 @@ y_hat_user_score <- predict(fit_user_score, test_set)
 rmse_user_score <- RMSE(test_set$Global_Sales, y_hat_user_score)
 ```
 
-# User & Critic Count
+### User & Critic Count
 
-The next relationship I analyzed is that between the number of users and critics and sales. The following plots illustrate that relationship. Again, we plot the average sales number for a given number of critics / users to gain a better overview.
+The next relationship I analyzed is that between the number of users respectively critics and sales. The following plots illustrate that relationship. Again, I plot the average sales number for a given number of critics / users to gain a better overview.
 
 ```{r plots_counts, echo=FALSE}
 p1 <- sales %>% group_by(Critic_Count) %>% summarize(m = mean(Global_Sales)) %>% ggplot + geom_point(aes(Critic_Count, m)) + ylab("Average sales")
@@ -140,7 +141,7 @@ grid.arrange(p1, p2, ncol=2)
 
 There seems to be a positive relationship between the number of critics who rated a game and sales. The fitted regression model also shows a clear improvement in RMSE compared to the naive model.
 
-The number of users who rated the game does not seem to be predict sales very well. In fact, the regression model based on this variable also does not improve RMSE.
+The number of users who rated the game does not seem to predict sales very well. In fact, the regression model based on this variable also does not improve RMSE.
 
 ```{r models_count}
 # Fit a linear regression using number of critics 
@@ -154,7 +155,7 @@ y_hat_user_count <- predict(fit_user_count, test_set)
 rmse_user_count <- RMSE(test_set$Global_Sales, y_hat_user_count)
 ```
 
-# Platform, Developer and Publisher
+### Platform, Developer and Publisher
 
 It seems intuitive that there are differences in sales depending on platform, developer and publisher. The first one determines the number of potential buyers, the latter two are responsible for the quality of the game and its marketing. Two univariate regression with platform respectively publisher as explanatory variables does indeed show a significant improvement in RMSE compared to the benchmark. However, a bit surprisingly the same regression model using the developer as explanatory variable does not show any improvements. It is left for future work to further explore the relationship between developer and sales and potentially find a better suited model to fit that improves the forecast. Note that as described earlier, I introduced another category for publishers and developers - namely "Others" for small publishers / developers - primarily to avoid the issue of having publishers / developers in the validation set that were not present in the training data and for which no coefficients have been fitted. The code below shows the performed regressions:
 
@@ -175,7 +176,7 @@ y_hat_developer <- predict(fit_developer, test_set)
 rmse_developer <- RMSE(test_set$Global_Sales, y_hat_developer)
 ```
 
-# Final Model
+### Final Model
 
 Finally, I combine the variables that have shown to have some explanatory power in one model. These seem to be the number of critics and their score, the publisher and the platform. The model is fitted as follows:
 
@@ -209,9 +210,9 @@ The variables that seem to have the most explanatory power are Critic Score, Cri
 
 ## Conclusion
 
-This report discussed several possible methods to forecast video game sales based on various variables. I outlined several prepatory steps that were required to perform subsequent analysis on the data. Subsequently serveral potential explanatory variables were further discussed and various regressions models fitted. It turned out that particularly the aggregate score of critics, the number of critics who rated a game, the publisher and the platform are useful in making a sales prediction. The final model significantly reduced the RMSE compared to a naive prediction using the mean sales value. 
+This report discussed several possible methods to forecast video game sales based on various variables. I outlined several prepatory steps that were required to perform the subsequent analysis on the data. Subsequently various potential explanatory variables were further discussed and corresponding regressions models were fitted. It turned out that particularly the aggregate score of critics, the number of critics who rated a game, the publisher and the platform are useful in making a sales prediction. The final model significantly reduced the RMSE compared to a naive prediction using the mean sales value. 
 
-Besides theoretical limitations with regards to the chosen model - more advanced models going beyond regression models discussed here might produce even better results - and the availability of data, I do not want to leave unmentioned some limitations concerning the practical applicability of the approach. Although the report clearly shows e.g. that game developers should be thoughtful when deciding for which platform to develop a game or about collaborations with publishers, the use of variables such as the aggregated critics' score and number should be viewed with some caution from a practical point of view. Both variables are only known ex post so a model using them is not suited e.g. to assist in decision making before or during game development. However, there is still a limited number of use cases for a model such as this, e.g. as part of a sales forecast model for financial analysts.
+Besides theoretical limitations with regards to the chosen model - more advanced models going beyond linear regression models discussed here might produce even better results - and the availability of data, I do not want to leave unmentioned some limitations concerning the practical applicability of the approach. Although the report clearly shows e.g. that game developers should be thoughtful when deciding for which platform to develop a game or about collaborations with publishers, the use of variables such as the aggregated critics' score and number should be viewed with some caution from a practical point of view. Both variables are only known ex post to game development, so a model using them is not suited e.g. to assist in decision making before or during game development. However, there is still a limited number of use cases for a model such as this, e.g. as part of a sales forecast model for financial analysts.
 
 There are several possible improvements that can be explored by future work. In particular the regional sales could be incorporated to forecast regional sales first instead of directly trying to predict global sales. A natural starting point would be to explore the popularity of certain genres and platforms in certain regions (e.g. considering the populartiy of PSP consoles in Japan) and to subsequently fit forecasting models for each region. 
 

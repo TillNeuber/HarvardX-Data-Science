@@ -1,3 +1,5 @@
+# GitHub Repo: https://github.com/TillNeuber/HarvardX-Data-Science.
+
 ################################
 # Create training set, validation set
 ################################
@@ -63,7 +65,7 @@ rmse_naive <- RMSE(test_set$Global_Sales, m)
 
 
 ################################
-# Prediction using score $ count variables
+# Prediction using score & count variables
 ################################
 
 # Fit a linear regression using the critic scores only
